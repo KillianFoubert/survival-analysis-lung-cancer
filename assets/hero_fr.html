@@ -1,0 +1,76 @@
+<div class="scroll-progress">
+  <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+</div>
+
+<div class="report-hero">
+  <div class="lang-switch">
+    🇬🇧 <a href="survival_analysis_oncology_EN.html">English version</a>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      Biostatistique · Analyse de survie et modélisation de Cox
+    </div>
+
+    <h1 class="hero-title">
+      Qui survit au cancer du<br>
+      poumon <em>avancé</em>, et pourquoi ?
+    </h1>
+
+    <p class="hero-subtitle">
+      Une analyse de survie reproductible sur la cohorte NCCTG de cancers du poumon avancés. Estimation de Kaplan-Meier, modèle de Cox multivarié à risques proportionnels, et diagnostics de Schoenfeld pour identifier les facteurs pronostiques qui comptent vraiment.
+    </p>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-number">228</div>
+        <div class="hero-stat-label">Patients dans la cohorte NCCTG de cancer du poumon avancé</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-number">4</div>
+        <div class="hero-stat-label">Méthodologies appliquées tout au long de l'analyse</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-number">310 j</div>
+        <div class="hero-stat-label">Médiane de survie globale dans la cohorte</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-number">2</div>
+        <div class="hero-stat-label">Prédicteurs indépendants retenus par le modèle de Cox</div>
+      </div>
+    </div>
+
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Auteur</span>
+        <span class="hero-meta-value">Killian Foubert, PhD</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Méthodes</span>
+        <span class="hero-meta-value">Kaplan-Meier · Cox PH · Schoenfeld</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Stack</span>
+        <span class="hero-meta-value">R · survival · survminer · gtsummary</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">Lire la suite</div>
+</div>
+
+<script>
+(function() {
+  function updateProgress() {
+    var bar = document.getElementById('scrollProgressBar');
+    if (!bar) return;
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var pct = height > 0 ? (scrollTop / height) * 100 : 0;
+    bar.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress, { passive: true });
+  document.addEventListener('DOMContentLoaded', updateProgress);
+})();
+</script>

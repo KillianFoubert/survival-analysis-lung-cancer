@@ -1,27 +1,44 @@
 ---
-title: "Survival Analysis in Oncology"
-subtitle: "Advanced Lung Cancer — NCCTG Cohort (n = 228)"
+title: "Survival Analysis in Lung Cancer"
 author: "Killian Foubert, Ph.D."
-date: "`r format(Sys.Date(), '%B %d, %Y')`"
+date: "`r format(Sys.Date(), '%B %Y')`"
 output:
   html_document:
-    theme: flatly
-    toc: true
-    toc_float: true
-    toc_depth: 3
-    number_sections: true
-    code_folding: show
-    fig_width: 10
-    fig_height: 7
+    toc: false
+    number_sections: false
+    code_folding: hide
+    df_print: paged
+    css: assets/styles.css
+    includes:
+      before_body: assets/hero_en.html
+    self_contained: true
+    mathjax: default
+    fig_width: 9
+    fig_height: 6
 ---
 
 ```{r setup, include=FALSE}
+if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
+library(here)
+
 knitr::opts_chunk$set(
   echo = TRUE,
   message = FALSE,
   warning = FALSE,
-  fig.align = "center"
+  fig.align = "center",
+  dpi = 150
 )
+
+# Helper to render a figure caption ABOVE the next inline figure
+fig_caption_above <- function(text) {
+  htmltools::HTML(sprintf(
+    '<div class="figure-wrapper"><div class="figure-caption-top">%s</div>',
+    text
+  ))
+}
+fig_caption_close <- function() {
+  htmltools::HTML('</div>')
+}
 ```
 
 # Introduction
@@ -121,9 +138,7 @@ p_wt    <- wilcox.test(wt.loss ~ sex_label, data = lung_t1)$p.value
 p_death <- chisq.test(lung_t1$status_label, lung_t1$sex_label)$p.value
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Table 1. Patient characteristics by sex (n = 227)
-</div>
+<div class="figure-caption-top">Table 1. Patient characteristics by sex.</div>
 
 ```{r table1-display, echo=FALSE}
 lung_t1 %>%
@@ -154,9 +169,7 @@ lung_t1 %>%
 
 <br>
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Table 2. Male vs Female comparison tests (H₀: no difference between sexes)
-</div>
+<div class="figure-caption-top">Table 2. Statistical tests for differences between sexes.</div>
 
 ```{r pvalues-table2, echo=FALSE, results='asis'}
 interpret <- function(p, var_name) {
@@ -249,13 +262,13 @@ p_km_global <- ggsurvplot(
 )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 1. Overall survival curve (Kaplan-Meier) — Lung cancer, NCCTG cohort
-</div>
+<div class="figure-caption-top">Figure 1. Overall Kaplan-Meier survival curve.</div>
 
 ```{r km-global-plot, echo=FALSE}
 p_km_global
 ```
+
+<div class="figure-note">The curve shows the cumulative survival probability over time across the entire cohort. The shaded band represents the 95% confidence interval; the median survival is reached when the curve crosses 0.5.</div>
 
 **Overall median survival** is **`r summary(km_global)$table["median"]` days** (95% CI: `r summary(km_global)$table["0.95LCL"]`–`r summary(km_global)$table["0.95UCL"]`).
 
@@ -288,13 +301,13 @@ p_km_sex <- ggsurvplot(
 )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 2. Survival curves by sex (Kaplan-Meier) with log-rank test
-</div>
+<div class="figure-caption-top">Figure 2. Survival by sex.</div>
 
 ```{r km-sex-plot, echo=FALSE}
 p_km_sex
 ```
+
+<div class="figure-note">Kaplan-Meier curves stratified by sex, with log-rank test for the difference between groups. Female patients show consistently higher survival probability throughout follow-up.</div>
 
 ```{r logrank-sex}
 logrank_sex <- survdiff(surv_obj ~ sex_label, data = lung)
@@ -340,13 +353,13 @@ p_km_ecog <- ggsurvplot(
 )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 3. Survival curves by ECOG score (Kaplan-Meier) with log-rank test
-</div>
+<div class="figure-caption-top">Figure 3. Survival by ECOG performance status.</div>
 
 ```{r km-ecog-plot, echo=FALSE}
 p_km_ecog
 ```
+
+<div class="figure-note">Stratification by ECOG functional status (0 = asymptomatic, 3 = bedridden >50%). The strongest prognostic gradient observed: each ECOG level corresponds to a substantial drop in survival.</div>
 
 The **ECOG score is strongly associated with survival**: patients with a high score (degraded functional status) have markedly reduced survival.
 
@@ -384,13 +397,13 @@ p_km_age <- ggsurvplot(
 )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 4. Survival curves by age group (Kaplan-Meier) with log-rank test
-</div>
+<div class="figure-caption-top">Figure 4. Survival by age group.</div>
 
 ```{r km-age-plot, echo=FALSE}
 p_km_age
 ```
+
+<div class="figure-note">Three age strata: <60, 60–70, and >70 years. Age shows a more modest effect than ECOG or sex on survival in this cohort.</div>
 
 **Reading the figure:** the three curves represent estimated survival for patients under 60 (blue, n = 93), 60 to 70 (orange, n = 88) and over 70 (red, n = 46). Unlike sex and ECOG score, the survival curves by age group are relatively close and cross each other several times during follow-up.
 
@@ -432,9 +445,7 @@ tbl3 <- tbl_stack(
   modify_header(label ~ "**Variable**")
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Table 3. Univariate Cox analyses — Hazard Ratios
-</div>
+<div class="figure-caption-top">Table 3. Univariate Cox regressions.</div>
 
 ```{r cox-univar-display, echo=FALSE}
 tbl3
@@ -469,9 +480,7 @@ tbl4 <- tbl_regression(
   modify_header(label ~ "**Variable**")
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Table 4. Multivariate Cox model — Adjusted Hazard Ratios
-</div>
+<div class="figure-caption-top">Table 4. Multivariate Cox model.</div>
 
 ```{r cox-multi-display, echo=FALSE}
 tbl4
@@ -521,13 +530,13 @@ p_forest <- ggplot(cox_tidy, aes(x = estimate, y = reorder(label, estimate))) +
   )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 5. Forest plot — Adjusted Hazard Ratios from the multivariate Cox model (n = `r cox_multi$n`)
-</div>
+<div class="figure-caption-top">Figure 5. Forest plot of multivariate Cox model.</div>
 
 ```{r forest-plot-display, echo=FALSE, fig.height=5, fig.width=9}
 p_forest
 ```
+
+<div class="figure-note">Adjusted hazard ratios with 95% confidence intervals from the multivariate Cox model. Values right of the vertical line indicate increased mortality risk; values left indicate protective effects.</div>
 
 **Reading the figure:** each point represents the adjusted hazard ratio of a variable, and the horizontal bars their 95% confidence interval. The dashed vertical line at HR = 1 represents the absence of effect. When a confidence interval crosses this line, the effect is not significant (grey). When it does not, the effect is significant (red). When the confidence interval lies to the left of the HR = 1 line (without crossing it), the variable has a significant protective effect compared to the reference category. Conversely, when the confidence interval lies to the right (without crossing it), the variable increases the risk of death compared to the reference.
 
@@ -550,9 +559,7 @@ ph_test
 p_schoenfeld <- ggcoxzph(ph_test, font.main = c(11, "plain", "black"))
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 6. Schoenfeld residuals
-</div>
+<div class="figure-caption-top">Figure 6. Schoenfeld residuals: proportional hazards diagnostic.</div>
 
 ```{r schoenfeld-plot-display, echo=FALSE, fig.height=8, fig.width=10}
 gridExtra::grid.arrange(
@@ -562,9 +569,7 @@ gridExtra::grid.arrange(
 )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.3em; margin-top: 12px; margin-bottom: 12px;">
-Global Schoenfeld Test p = `r round(ph_test$table["GLOBAL", "p"], 4)`
-</div>
+<div class="figure-note">Each panel shows scaled Schoenfeld residuals over time for one covariate. A flat trend (slope close to zero) supports the proportional hazards assumption; systematic curvature would indicate violation.</div>
 
 The global test is **`r ifelse(ph_test$table["GLOBAL", "p"] > 0.05, "non-significant", "significant")`** (p = `r round(ph_test$table["GLOBAL", "p"], 3)`), meaning that the proportional hazards assumption is **`r ifelse(ph_test$table["GLOBAL", "p"] > 0.05, "satisfied", "violated")`**. The Cox model is therefore `r ifelse(ph_test$table["GLOBAL", "p"] > 0.05, "valid", "to be reconsidered")`.
 
@@ -612,4 +617,4 @@ Several methodological extensions could enrich this analysis:
 
 ---
 
-*Project built in R `r getRversion()` — Source code available on [GitHub](https://github.com/kfoubert/survival-analysis-oncology)*
+*Project built in R `r getRversion()` — Source code available on [GitHub](https://github.com/KillianFoubert/survival-analysis-lung-cancer)*

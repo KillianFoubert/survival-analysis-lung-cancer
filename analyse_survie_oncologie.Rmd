@@ -1,27 +1,44 @@
 ---
-title: "Analyse de Survie en Oncologie"
-subtitle: "Cancer du poumon avancé — Cohorte NCCTG (n = 228)"
+title: "Analyse de survie sur le cancer du poumon"
 author: "Killian Foubert, Ph.D."
-date: "`r format(Sys.Date(), '%d %B %Y')`"
+date: "`r format(Sys.Date(), '%B %Y')`"
 output:
   html_document:
-    theme: flatly
-    toc: true
-    toc_float: true
-    toc_depth: 3
-    number_sections: true
-    code_folding: show
-    fig_width: 10
-    fig_height: 7
+    toc: false
+    number_sections: false
+    code_folding: hide
+    df_print: paged
+    css: assets/styles.css
+    includes:
+      before_body: assets/hero_fr.html
+    self_contained: true
+    mathjax: default
+    fig_width: 9
+    fig_height: 6
 ---
 
 ```{r setup, include=FALSE}
+if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
+library(here)
+
 knitr::opts_chunk$set(
   echo = TRUE,
   message = FALSE,
   warning = FALSE,
-  fig.align = "center"
+  fig.align = "center",
+  dpi = 150
 )
+
+# Helper to render a figure caption ABOVE the next inline figure
+fig_caption_above <- function(text) {
+  htmltools::HTML(sprintf(
+    '<div class="figure-wrapper"><div class="figure-caption-top">%s</div>',
+    text
+  ))
+}
+fig_caption_close <- function() {
+  htmltools::HTML('</div>')
+}
 ```
 
 # Introduction
@@ -121,9 +138,7 @@ p_wt    <- wilcox.test(wt.loss ~ sex_label, data = lung_t1)$p.value
 p_death <- chisq.test(lung_t1$status_label, lung_t1$sex_label)$p.value
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Tableau 1. Caractéristiques des patients selon le sexe (n = 227)
-</div>
+<div class="figure-caption-top">Tableau 1. Caractéristiques des patients par sexe.</div>
 
 ```{r table1-display, echo=FALSE}
 # Construire le tableau descriptif
@@ -155,9 +170,7 @@ lung_t1 %>%
 
 <br>
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Tableau 2. Tests de comparaison Homme vs Femme (H₀ : absence de différence entre les sexes)
-</div>
+<div class="figure-caption-top">Tableau 2. Tests statistiques pour les différences entre sexes.</div>
 
 ```{r pvalues-table2, echo=FALSE, results='asis'}
 interpret <- function(p, var_name) {
@@ -250,13 +263,13 @@ p_km_global <- ggsurvplot(
 )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 1. Courbe de survie globale (Kaplan-Meier) — Cancer du poumon, cohorte NCCTG
-</div>
+<div class="figure-caption-top">Figure 1. Courbe de survie de Kaplan-Meier globale.</div>
 
 ```{r km-global-plot, echo=FALSE}
 p_km_global
 ```
+
+<div class="figure-note">La courbe montre la probabilité cumulée de survie au cours du temps sur l'ensemble de la cohorte. La bande grisée représente l'intervalle de confiance à 95 % ; la médiane de survie est atteinte lorsque la courbe croise 0,5.</div>
 
 La **survie médiane** globale est de **`r summary(km_global)$table["median"]` jours** (IC 95% : `r summary(km_global)$table["0.95LCL"]`–`r summary(km_global)$table["0.95UCL"]`).
 
@@ -291,13 +304,13 @@ p_km_sex <- ggsurvplot(
 )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 2. Courbes de survie par sexe (Kaplan-Meier) avec test du log-rank
-</div>
+<div class="figure-caption-top">Figure 2. Survie selon le sexe.</div>
 
 ```{r km-sex-plot, echo=FALSE}
 p_km_sex
 ```
+
+<div class="figure-note">Courbes de Kaplan-Meier stratifiées par sexe, avec test du log-rank pour la différence entre groupes. Les patientes femmes présentent une probabilité de survie systématiquement plus élevée tout au long du suivi.</div>
 
 ```{r logrank-sex}
 logrank_sex <- survdiff(surv_obj ~ sex_label, data = lung)
@@ -340,13 +353,13 @@ p_km_ecog <- ggsurvplot(
 )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 3. Courbes de survie par score ECOG (Kaplan-Meier) avec test du log-rank
-</div>
+<div class="figure-caption-top">Figure 3. Survie selon le score ECOG.</div>
 
 ```{r km-ecog-plot, echo=FALSE}
 p_km_ecog
 ```
+
+<div class="figure-note">Stratification par statut fonctionnel ECOG (0 = asymptomatique, 3 = alité >50 %). Le gradient pronostique le plus marqué : chaque niveau ECOG correspond à une chute substantielle de survie.</div>
 
 Le **score ECOG est fortement associé à la survie** : les patients avec un score élevé (état fonctionnel dégradé) ont une survie nettement réduite.
 
@@ -386,13 +399,13 @@ p_km_age <- ggsurvplot(
 )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 4. Courbes de survie par groupe d'âge (Kaplan-Meier) avec test du log-rank
-</div>
+<div class="figure-caption-top">Figure 4. Survie selon le groupe d'âge.</div>
 
 ```{r km-age-plot, echo=FALSE}
 p_km_age
 ```
+
+<div class="figure-note">Trois strates d'âge : <60, 60–70, et >70 ans. L'âge montre un effet plus modeste que l'ECOG ou le sexe sur la survie dans cette cohorte.</div>
 
 
 **Lecture de la figure :** les trois courbes représentent la survie estimée pour les patients de moins de 60 ans (bleu, n = 93), de 60 à 70 ans (orange, n = 88) et de plus de 70 ans (rouge, n = 46). Contrairement au sexe et au score ECOG, les courbes de survie par groupe d'âge sont relativement proches et se croisent à plusieurs reprises au cours du suivi.
@@ -436,9 +449,7 @@ tbl3 <- tbl_stack(
   modify_header(label ~ "**Variable**")
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Tableau 3. Analyses de Cox univariées — Hazard Ratios
-</div>
+<div class="figure-caption-top">Tableau 3. Régressions de Cox univariées.</div>
 
 ```{r cox-univar-display, echo=FALSE}
 tbl3
@@ -473,9 +484,7 @@ tbl4 <- tbl_regression(
   modify_header(label ~ "**Variable**")
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Tableau 4. Modèle de Cox multivarié — Hazard Ratios ajustés
-</div>
+<div class="figure-caption-top">Tableau 4. Modèle de Cox multivarié.</div>
 
 ```{r cox-multi-display, echo=FALSE}
 tbl4
@@ -526,13 +535,13 @@ p_forest <- ggplot(cox_tidy, aes(x = estimate, y = reorder(label, estimate))) +
   )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 5. Forest plot — Hazard Ratios ajustés du modèle de Cox multivarié (n = `r cox_multi$n`)
-</div>
+<div class="figure-caption-top">Figure 5. Forest plot du modèle de Cox multivarié.</div>
 
 ```{r forest-plot-display, echo=FALSE, fig.height=5, fig.width=9}
 p_forest
 ```
+
+<div class="figure-note">Hazard ratios ajustés avec intervalles de confiance à 95 % issus du modèle de Cox multivarié. Les valeurs à droite de la ligne verticale indiquent un risque accru de mortalité ; à gauche, un effet protecteur.</div>
 
 **Lecture de la figure :** chaque point représente le hazard ratio ajusté d'une variable, et les barres horizontales leur intervalle de confiance à 95%. La ligne verticale pointillée à HR = 1 représente l'absence d'effet. Lorsqu'un intervalle de confiance croise cette ligne, l'effet n'est pas significatif (en gris). Lorsqu'il ne la croise pas, l'effet est significatif (en rouge). Lorsque l'intervalle de confiance est à gauche de la ligne grise en HR = 1 (sans la croiser), la variable a un effet protecteur significatif comparativement à la variable de référence. À l'inverse, lorsque l'intervalle de confiance est à droite de la ligne grise (sans la croiser), la variable augmente le risque de décès comparativement à la variable de référence.
 
@@ -556,9 +565,7 @@ ph_test
 p_schoenfeld <- ggcoxzph(ph_test, font.main = c(11, "plain", "black"))
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.15em; margin-bottom: 8px;">
-Figure 6. Résidus de Schoenfeld
-</div>
+<div class="figure-caption-top">Figure 6. Résidus de Schoenfeld : diagnostic des risques proportionnels.</div>
 
 ```{r schoenfeld-plot-display, echo=FALSE, fig.height=8, fig.width=10}
 # Afficher les 4 graphiques individuellement sans le titre global auto-généré
@@ -569,9 +576,7 @@ gridExtra::grid.arrange(
 )
 ```
 
-<div style="text-align: center; font-weight: bold; font-size: 1.3em; margin-top: 12px; margin-bottom: 12px;">
-Global Schoenfeld Test p = `r round(ph_test$table["GLOBAL", "p"], 4)`
-</div>
+<div class="figure-note">Chaque panneau montre les résidus de Schoenfeld standardisés au cours du temps pour une covariable. Une tendance plate (pente proche de zéro) soutient l'hypothèse des risques proportionnels ; une courbure systématique indiquerait une violation.</div>
 
 Le test global est **`r ifelse(ph_test$table["GLOBAL", "p"] > 0.05, "non significatif", "significatif")`** (p = `r round(ph_test$table["GLOBAL", "p"], 3)`), ce qui signifie que l'hypothèse de proportionnalité des risques est **`r ifelse(ph_test$table["GLOBAL", "p"] > 0.05, "respectée", "violée")`**. Le modèle de Cox est donc `r ifelse(ph_test$table["GLOBAL", "p"] > 0.05, "valide", "à reconsidérer")`.
 
@@ -619,4 +624,4 @@ Plusieurs extensions méthodologiques pourraient enrichir cette analyse :
 
 ---
 
-*Projet réalisé en R `r getRversion()` — Code source disponible sur [GitHub](https://github.com/kfoubert/survival-analysis-oncology)*
+*Projet réalisé en R `r getRversion()` — Code source disponible sur [GitHub](https://github.com/KillianFoubert/survival-analysis-lung-cancer)*
